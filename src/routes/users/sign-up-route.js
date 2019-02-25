@@ -2,38 +2,35 @@ const fs = require("fs");
 const path = require("path");
 
 const saveUser = user => {
-  const userName = user.username;
   const filePath = path.join(
     __dirname,
     "../../",
     "db/users",
-    `${userName}.json`
+    `${user.username}.json`
   );
 
-  fs.writeFile(filePath, JSON.stringify(user), err => {
-    if (err) throw err;
+  fs.writeFile(filePath, JSON.stringify(user), error => {
+    if (error) throw error;
   });
 };
 
 const signUpRoute = (request, response) => {
   if (request.method === "POST") {
-    let body = "";
+    let data = "";
 
-    request.on("data", data => {
-      body += data;
-
-      console.log("Incoming data!!!!");
+    request.on("data", chunk => {
+      data += chunk;
     });
 
     request.on("end", () => {
-      const user = JSON.parse(body);
+      const user = JSON.parse(data);
       saveUser(user);
 
       const responseSuccess = JSON.stringify({
         status: "success",
         user: user
       });
-      response.writeHead(200, { "Content-Type": "application/json" });
+      response.writeHead(201, { "Content-Type": "application/json" });
       response.end(responseSuccess);
     });
   }
